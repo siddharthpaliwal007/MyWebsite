@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Siddharth Paliwal — Cloud Security, Learning in Public</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #15110D;
+    --surface: #1E1813;
+    --surface-2: #29211A;
+    --line: #3A2E23;
+    --orange: #FF6A28;
+    --orange-soft: rgba(255,106,40,0.14);
+    --amber: #FFB648;
+    --amber-soft: rgba(255,182,72,0.16);
+    --text: #F8F1E7;
+    --muted: #B7A897;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+
+  body{
+    background:
+      radial-gradient(900px 500px at 88% -8%, rgba(255,106,40,0.16), transparent 60%),
+      radial-gradient(700px 460px at 6% 108%, rgba(255,182,72,0.10), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Manrope', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{ color:inherit; text-decoration:none; }
+  .serif{ font-family:'Fraunces', serif; }
+
+  .page{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding: clamp(20px, 3.2vh, 40px) clamp(20px, 5.5vw, 72px);
+    gap: clamp(18px, 2.6vh, 30px);
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    display:grid;
+    grid-template-columns: 1.35fr 0.85fr;
+    align-items:center;
+    gap:clamp(20px, 4vw, 48px);
+    flex:1;
+    min-height:0;
+  }
+
+  .hero-copy{ display:flex; flex-direction:column; gap:14px; }
+
+  .eyebrow{
+    font-size:12.5px;
+    font-weight:700;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--orange);
+  }
+
+  .hero-name{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(15px, 2vw, 19px);
+    color:var(--muted);
+  }
+  .hero-name span{ color:var(--text); }
+
+  .hero-title{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:clamp(34px, 4.6vw, 58px);
+    line-height:1.05;
+    letter-spacing:-0.01em;
+  }
+  .hero-title .accent{
+    font-style:italic;
+    font-weight:500;
+    background: linear-gradient(90deg, var(--orange), var(--amber));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  .hero-points{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-top:6px;
+  }
+  .hero-points .pt{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    font-size:clamp(13.5px, 1.25vw, 15.5px);
+    color:var(--text);
+  }
+  .hero-points .pt .ic{
+    flex:0 0 auto;
+    font-size:16px;
+    line-height:1.3;
+  }
+  .hero-points .pt b{ color:var(--orange); font-weight:700; }
+
+  .hero-actions{
+    display:flex;
+    gap:12px;
+    margin-top:10px;
+    flex-wrap:wrap;
+  }
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:12px 20px;
+    border-radius:999px;
+    font-weight:700;
+    font-size:13.5px;
+  }
+  .btn-primary{
+    background: linear-gradient(90deg, var(--orange), var(--amber));
+    color:#1B140E;
+  }
+  .btn-primary:hover{ filter:brightness(1.06); }
+  .btn-ghost{
+    border:1.5px solid var(--line);
+    color:var(--text);
+    transition:border-color .18s ease, color .18s ease;
+  }
+  .btn-ghost:hover{ border-color:var(--orange); color:var(--orange); }
+
+  /* ---------- Portrait ---------- */
+  .portrait-wrap{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .portrait-glow{
+    position:absolute;
+    width:min(78%, 320px);
+    aspect-ratio:1/1;
+    border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, var(--amber), var(--orange) 55%, transparent 75%);
+    filter:blur(6px);
+    opacity:0.55;
+    z-index:0;
+  }
+  .portrait-ring{
+    position:relative;
+    z-index:1;
+    width:min(64%, 260px);
+    aspect-ratio:1/1;
+    border-radius:50%;
+    padding:7px;
+    background: linear-gradient(140deg, var(--orange), var(--amber));
+  }
+  .portrait-img{
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    object-fit:cover;
+    display:block;
+    border:4px solid var(--bg);
+  }
+  .portrait-placeholder{
+    background: var(--surface-2);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .portrait-placeholder::after{
+    content:"Your photo here";
+    font-family:'Manrope', sans-serif;
+    font-size:12px;
+    color:var(--muted);
+    text-align:center;
+    padding:0 20px;
+  }
+  .portrait-caption{
+    position:absolute;
+    bottom:-6px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:2;
+    background:var(--surface);
+    border:1px solid var(--line);
+    padding:6px 14px;
+    border-radius:999px;
+    font-size:11.5px;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+
+  /* ---------- Lower row: sites + quote side by side ---------- */
+  .lower-grid{
+    display:grid;
+    grid-template-columns: 1fr 0.95fr;
+    align-items:center;
+    gap: clamp(20px, 4vw, 48px);
+    flex:1;
+    min-height:0;
+  }
+
+  /* ---------- Cloud quote ---------- */
+  .quote-wrap{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100%;
+  }
+  .cloud-quote{
+    position:relative;
+    width:min(360px, 88%);
+  }
+  .cloud-quote svg{ width:100%; height:auto; display:block; }
+  .cloud-text{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding: 0 18%;
+  }
+  .cloud-text p{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:clamp(15px, 1.7vw, 19px);
+    line-height:1.45;
+    color:var(--text);
+  }
+  .cloud-text p::before{ content:"“"; color:var(--orange); font-weight:700; }
+  .cloud-text p::after{ content:"”"; color:var(--orange); font-weight:700; }
+
+  /* ---------- Security sites ---------- */
+  .sites-section{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    height:100%;
+    justify-content:center;
+  }
+  .sites-label{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:12.5px;
+    font-weight:700;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .sites-label::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--line);
+  }
+
+  .sites-grid{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+
+  .site-card{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:18px 20px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:16px;
+    transition: border-color .18s ease, transform .18s ease, background .18s ease;
+  }
+  .site-card:hover{
+    border-color:var(--orange);
+    background:var(--surface-2);
+    transform:translateY(-3px);
+  }
+  .site-card:focus-visible{ outline:2px solid var(--orange); outline-offset:3px; }
+
+  .site-icon{
+    width:46px; height:46px;
+    border-radius:12px;
+    background: var(--orange-soft);
+    border:1px solid rgba(255,106,40,0.35);
+    display:flex; align-items:center; justify-content:center;
+    flex:0 0 auto;
+  }
+  .site-icon svg{ width:22px; height:22px; }
+
+  .site-text{ flex:1; min-width:0; }
+  .site-text .name{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:15.5px;
+    color:var(--text);
+  }
+  .site-text .desc{
+    font-size:12.5px;
+    color:var(--muted);
+    margin-top:3px;
+    line-height:1.4;
+  }
+  .site-arrow{
+    color:var(--muted);
+    font-size:18px;
+    transition: transform .18s ease, color .18s ease;
+  }
+  .site-card:hover .site-arrow{ transform:translateX(4px); color:var(--orange); }
+
+  /* ---------- Footer / contact ---------- */
+  .footer{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:14px;
+    padding-top:6px;
+    border-top:1px solid var(--line);
+  }
+  .footer-left{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .footer-note{
+    font-size:12px;
+    color:var(--muted);
+  }
+  .social-row{
+    display:flex;
+    gap:10px;
+  }
+  .social-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:38px; height:38px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:var(--surface);
+    transition:border-color .18s ease, color .18s ease, transform .18s ease;
+  }
+  .social-btn svg{ width:16px; height:16px; }
+  .social-btn:hover{ border-color:var(--orange); color:var(--orange); transform:translateY(-2px); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 940px){
+    .page{ min-height:auto; }
+    .hero{ grid-template-columns:1fr; }
+    .portrait-wrap{ order:-1; padding-bottom:10px; }
+    .lower-grid{ grid-template-columns:1fr; }
+    .quote-wrap{ order:-1; padding-bottom:6px; }
+    .cloud-quote{ width:min(360px, 78%); margin:0 auto; }
+    .cloud-text{ padding:0 12%; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .site-card, .social-btn, .btn{ transition:none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">About me</div>
+      <div class="hero-name">Hi, I'm <span>Siddharth Paliwal</span></div>
+      <h1 class="hero-title"><span class="accent">Security Enthusiast</span><br>in <span class="accent">AWS Cloud</span></h1>
+
+      <div class="hero-points">
+        <div class="pt"><span class="ic">🌩️</span><span><b>Future Cloud Security Engineer</b>, building one lab at a time.</span></div>
+        <div class="pt"><span class="ic">🛡️</span><span>Breaking, learning, and securing cloud environments responsibly.</span></div>
+        <div class="pt"><span class="ic">⚙️</span><span>Passionate about DevSecOps, automation, and cyber resilience.</span></div>
+      </div>
+
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="mailto:siddharthpaliwal000@gmail.com?subject=Hi%20Siddharth">✉️ Say hello</a>
+        <a class="btn btn-ghost" href="#sites">Explore my security sites ↓</a>
+      </div>
+    </div>
+
+    <div class="portrait-wrap">
+      <div class="portrait-glow"></div>
+      <div class="portrait-ring">
+        <!--
+          ADD YOUR PHOTO HERE:
+          1. Save your photo in the same folder as this index.html (e.g. name it profile.jpg)
+          2. Delete the <div class="portrait-img portrait-placeholder"></div> line below
+          3. Paste this in its place:
+             <img class="portrait-img" src="profile.jpg" alt="Siddharth Paliwal">
+        -->
+        <div class="portrait-img portrait-placeholder"></div>
+      </div>
+      <div class="portrait-caption serif">he/him · AWS &amp; Cloud Security</div>
+    </div>
+  </div>
+
+  <div class="lower-grid" id="sites">
+    <div class="sites-section">
+      <div class="sites-label">Security sites</div>
+      <div class="sites-grid">
+
+        <a class="site-card" href="ship.html">
+          <div class="site-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#FF6A28" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M4 20l1-9h14l1 9M6 11V6a2 2 0 0 1 2-2h2v7M12 4v3"/></svg>
+          </div>
+          <div class="site-text">
+            <div class="name">AWS SHIP Documentation</div>
+            <div class="desc">Notes &amp; walkthroughs from shipping projects securely on AWS.</div>
+          </div>
+          <div class="site-arrow">→</div>
+        </a>
+
+        <a class="site-card" href="tools.html">
+          <div class="site-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#FF6A28" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4l-6 6a2 2 0 0 0 2.8 2.8l6-6a4 4 0 0 0 5.4-5.4l-2.1 2.1-2.8-2.8 2.1-2.1z"/></svg>
+          </div>
+          <div class="site-text">
+            <div class="name">AWS Security Tools Guide</div>
+            <div class="desc">A running list of tools I use to test &amp; harden cloud environments.</div>
+          </div>
+          <div class="site-arrow">→</div>
+        </a>
+
+      </div>
+    </div>
+
+    <div class="quote-wrap">
+      <div class="cloud-quote">
+        <svg viewBox="0 0 480 420" xmlns="http://www.w3.org/2000/svg">
+          <path d="M474.0,210.0 C475.9,239.2 446.7,276.4 424.0,300.5 C401.4,324.6 368.7,340.0 338.0,354.6 C307.3,369.2 274.2,385.9 240.0,388.1 C205.8,390.4 159.0,384.9 132.9,368.0 C106.8,351.2 97.6,313.2 83.6,286.9 C69.7,260.6 51.2,236.6 49.2,210.0 C47.2,183.4 54.9,149.4 71.7,127.2 C88.5,105.1 121.9,86.3 149.9,77.1 C178.0,67.9 210.3,71.5 240.0,72.0 C269.7,72.5 299.3,71.3 328.0,80.1 C356.8,89.0 388.3,103.5 412.6,125.1 C437.0,146.7 472.1,180.8 474.0,210.0 Z"
+                fill="#1E1813" stroke="#FFB648" stroke-width="2.5"/>
+        </svg>
+        <div class="cloud-text">
+          <p>Security is a habit, not a checkbox.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">
+      <span class="footer-note">© Siddharth Paliwal — built for learning, shared for everyone.</span>
+    </div>
+    <div class="social-row">
+      <a class="social-btn" href="https://github.com/siddharthpaliwal007" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.66.5 12.03c0 5.1 3.29 9.43 7.86 10.96.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.55-3.88-1.55-.52-1.34-1.28-1.7-1.28-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.71 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a10.99 10.99 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.77.11 3.06.74.8 1.19 1.83 1.19 3.09 0 4.44-2.7 5.42-5.26 5.7.42.36.78 1.08.78 2.17 0 1.57-.01 2.83-.01 3.22 0 .31.21.68.8.56C20.71 21.46 24 17.13 24 12.03 24 5.66 18.85.5 12 .5z"/></svg>
+      </a>
+      <a class="social-btn" href="https://linkedin.com/in/your-linkedin-id" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
+      </a>
+      <a class="social-btn" href="mailto:siddharthpaliwal000@gmail.com" aria-label="Email">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg>
+      </a>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
