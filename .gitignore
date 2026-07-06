@@ -1,0 +1,15 @@
+# Logs
+*.log
+
+# Environment files
+.env
+
+# Dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Ignore images folder
+images/
