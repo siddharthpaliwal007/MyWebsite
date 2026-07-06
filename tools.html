@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWS Security Tools — Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0a0e1a;
+    --surface:   #111827;
+    --card:      #161d2e;
+    --border:    #1e2d45;
+    --accent:    #f59e0b;
+    --accent2:   #3b82f6;
+    --accent3:   #10b981;
+    --accent4:   #8b5cf6;
+    --text:      #e2e8f0;
+    --muted:     #94a3b8;
+    --dim:       #4b5563;
+    --danger:    #ef4444;
+    --iam:       #f59e0b;
+    --threat:    #ef4444;
+    --data:      #10b981;
+    --network:   #3b82f6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ── SIDEBAR NAV ── */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 260px; height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 0 0 2rem;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .sidebar-logo {
+    padding: 1.5rem 1.25rem 1rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0.75rem;
+  }
+  .sidebar-logo .logo-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: linear-gradient(135deg, #f59e0b22, #3b82f622);
+    border: 1px solid #f59e0b44;
+    border-radius: 8px;
+    padding: 0.4rem 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+  .sidebar-logo h2 {
+    font-family: 'Sora', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .sidebar-logo p { font-size: 11px; color: var(--muted); margin-top: 0.2rem; }
+
+  .nav-category {
+    padding: 0.5rem 1.25rem 0.3rem;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .nav-iam    { color: var(--iam);     }
+  .nav-threat { color: var(--threat);  }
+  .nav-data   { color: var(--data);    }
+  .nav-net    { color: var(--network); }
+
+  .nav-link {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.45rem 1.25rem;
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: all 0.18s;
+    border-left: 3px solid transparent;
+  }
+  .nav-link:hover, .nav-link.active {
+    color: var(--text);
+    background: rgba(255,255,255,0.04);
+  }
+  .nav-link.active { border-left-color: var(--accent); color: var(--accent); }
+  .nav-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: 260px;
+    min-height: 100vh;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding: 5rem 4rem 4rem;
+    border-bottom: 1px solid var(--border);
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, #1e3a5f55, transparent),
+                radial-gradient(ellipse 50% 40% at 90% 110%, #f59e0b11, transparent);
+  }
+  .hero-grid {
+    position: absolute; inset: 0; opacity: 0.04;
+    background-image: linear-gradient(var(--border) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: #f59e0b14;
+    border: 1px solid #f59e0b33;
+    border-radius: 100px;
+    padding: 0.3rem 1rem;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin-bottom: 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .hero h1 {
+    font-family: 'Sora', sans-serif;
+    font-size: clamp(2.2rem, 4vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+  }
+  .hero h1 span {
+    background: linear-gradient(135deg, #f59e0b, #3b82f6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 620px;
+    margin-bottom: 2.5rem;
+    line-height: 1.75;
+  }
+  .hero-stats {
+    display: flex; gap: 2.5rem; flex-wrap: wrap;
+  }
+  .stat-item { }
+  .stat-num {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+  }
+  .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* ── CATEGORY OVERVIEW ── */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .overview-card {
+    background: var(--surface);
+    padding: 1.75rem;
+    cursor: pointer;
+    transition: background 0.18s;
+  }
+  .overview-card:hover { background: var(--card); }
+  .ov-icon {
+    font-size: 1.6rem;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+  .ov-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+  .ov-count { font-size: 12px; color: var(--muted); }
+
+  /* ── CONTENT SECTIONS ── */
+  .content { padding: 0; }
+
+  .category-header {
+    padding: 3rem 4rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+    backdrop-filter: blur(10px);
+    background: rgba(10,14,26,0.92);
+  }
+  .category-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.3rem 0.9rem;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .badge-iam    { background: #f59e0b18; color: var(--iam);     border: 1px solid #f59e0b33; }
+  .badge-threat { background: #ef444418; color: var(--threat);  border: 1px solid #ef444433; }
+  .badge-data   { background: #10b98118; color: var(--data);    border: 1px solid #10b98133; }
+  .badge-net    { background: #3b82f618; color: var(--network); border: 1px solid #3b82f633; }
+
+  .category-header h2 {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+
+  .services-grid {
+    padding: 2rem 4rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ── SERVICE CARD ── */
+  .service-card {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    background: var(--card);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .service-card:hover {
+    border-color: var(--dim);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .card-header {
+    padding: 1.5rem 1.75rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+  .card-title-area { flex: 1; }
+  .card-name {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+  }
+  .card-tagline { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .card-ref-link {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    margin-top: 0.5rem;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent2);
+    text-decoration: none;
+    background: #3b82f610;
+    border: 1px solid #3b82f628;
+    border-radius: 6px;
+    padding: 0.2rem 0.6rem;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .card-ref-link:hover {
+    background: #3b82f622;
+    border-color: #3b82f655;
+    color: #93c5fd;
+  }
+  .card-ref-link svg { flex-shrink: 0; }
+  .card-toggle {
+    color: var(--dim);
+    font-size: 1.2rem;
+    transition: transform 0.25s;
+    margin-top: 0.15rem;
+  }
+  .card-toggle.open { transform: rotate(180deg); }
+
+  .card-body {
+    display: none;
+    padding: 1.75rem;
+  }
+  .card-body.open { display: block; }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+  .card-desc {
+    color: #c8d5e8;
+    margin-bottom: 1.5rem;
+    font-size: 14.5px;
+    line-height: 1.8;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.6rem;
+    margin-bottom: 1.75rem;
+  }
+  .feature-pill {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 12.5px;
+    display: flex; align-items: center; gap: 0.5rem;
+    color: var(--muted);
+  }
+  .feature-pill span { font-size: 14px; }
+
+  .how-it-works {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1.75rem;
+  }
+  .how-it-works .section-label { margin-bottom: 0.75rem; }
+  .steps { display: flex; flex-direction: column; gap: 0.6rem; }
+  .step {
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    font-size: 13.5px; color: #b0bec5;
+  }
+  .step-num {
+    background: var(--border);
+    border-radius: 6px;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* Real-world box */
+  .rw-box {
+    border-radius: 12px;
+    padding: 1.25rem 1.4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .rw-box::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 4px; height: 100%;
+  }
+  .rw-iam    { background: #f59e0b0d; border: 1px solid #f59e0b22; }
+  .rw-iam::before    { background: var(--iam);     }
+  .rw-threat { background: #ef44440d; border: 1px solid #ef444422; }
+  .rw-threat::before { background: var(--threat);  }
+  .rw-data   { background: #10b9810d; border: 1px solid #10b98122; }
+  .rw-data::before   { background: var(--data);    }
+  .rw-net    { background: #3b82f60d; border: 1px solid #3b82f622; }
+  .rw-net::before    { background: var(--network); }
+
+  .rw-header {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: 0.7rem;
+  }
+  .rw-tag {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .rw-company {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+  .rw-text { font-size: 13.5px; color: #9aafc5; line-height: 1.7; }
+  .rw-attack-badge {
+    display: inline-block;
+    font-size: 11px; font-weight: 600;
+    padding: 0.15rem 0.6rem;
+    border-radius: 100px;
+    margin-bottom: 0.5rem;
+  }
+
+  /* ── DIVIDER ── */
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0 4rem 0;
+  }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    margin-left: 0;
+    padding: 2.5rem 4rem;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .footer-left { }
+  .footer-title { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 0.9rem; }
+  .footer-sub { font-size: 12px; color: var(--muted); margin-top: 0.2rem; }
+  .footer-right { font-size: 12px; color: var(--dim); font-family: 'JetBrains Mono', monospace; }
+
+  /* ── SCROLL PROGRESS ── */
+  #progress-bar {
+    position: fixed; top: 0; left: 260px; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transform-origin: left;
+    transform: scaleX(0);
+    z-index: 200;
+    transition: transform 0.1s;
+  }
+
+  /* ── SEARCH BAR ── */
+  .search-wrap {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .search-input {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem;
+    color: var(--text);
+    font-size: 12.5px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.18s;
+  }
+  .search-input:focus { border-color: var(--accent2); }
+  .search-input::placeholder { color: var(--dim); }
+
+  /* ── TEAL TIP BOXES ── */
+  .tip-box {
+    background: #0f2939;
+    border: 1px solid #1e4d6b;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    font-size: 13px;
+    color: #7dd3fc;
+    display: flex; gap: 0.65rem; align-items: flex-start;
+    margin-bottom: 1.5rem;
+  }
+  .tip-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    #progress-bar { left: 0; }
+    .hero, .category-header, .services-grid { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .section-divider { margin: 0 1.5rem; }
+    .doc-footer { padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Progress Bar -->
+<div id="progress-bar"></div>
+
+<!-- ══ SIDEBAR ══ -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">🛡 AWS Docs</div>
+    <h2>Security Tools<br>Reference Guide</h2>
+    <p>16 Services · 4 Categories</p>
+  </div>
+
+  <div class="search-wrap">
+    <input class="search-input" type="text" id="sidebarSearch" placeholder="🔍  Search services…">
+  </div>
+
+  <div class="nav-category nav-iam">🔐 Identity & Access</div>
+  <a class="nav-link active" href="#iam">        <span class="nav-dot" style="background:var(--iam)"></span>AWS IAM</a>
+  <a class="nav-link" href="#identity-center">   <span class="nav-dot" style="background:var(--iam)"></span>IAM Identity Center</a>
+  <a class="nav-link" href="#cognito">           <span class="nav-dot" style="background:var(--iam)"></span>Amazon Cognito</a>
+  <a class="nav-link" href="#secrets">           <span class="nav-dot" style="background:var(--iam)"></span>Secrets Manager</a>
+
+  <div class="nav-category nav-threat" style="margin-top:.75rem">⚠ Threat & Monitoring</div>
+  <a class="nav-link" href="#guardduty">         <span class="nav-dot" style="background:var(--threat)"></span>Amazon GuardDuty</a>
+  <a class="nav-link" href="#securityhub">       <span class="nav-dot" style="background:var(--threat)"></span>AWS Security Hub</a>
+  <a class="nav-link" href="#detective">         <span class="nav-dot" style="background:var(--threat)"></span>Amazon Detective</a>
+  <a class="nav-link" href="#cloudtrail">        <span class="nav-dot" style="background:var(--threat)"></span>AWS CloudTrail</a>
+  <a class="nav-link" href="#config">            <span class="nav-dot" style="background:var(--threat)"></span>AWS Config</a>
+  <a class="nav-link" href="#cloudwatch">        <span class="nav-dot" style="background:var(--threat)"></span>AWS CloudWatch</a>
+
+  <div class="nav-category nav-data" style="margin-top:.75rem">🔒 Data Protection</div>
+  <a class="nav-link" href="#kms">               <span class="nav-dot" style="background:var(--data)"></span>AWS KMS</a>
+  <a class="nav-link" href="#macie">             <span class="nav-dot" style="background:var(--data)"></span>Amazon Macie</a>
+
+  <div class="nav-category nav-net" style="margin-top:.75rem">🌐 App & Network</div>
+  <a class="nav-link" href="#inspector">         <span class="nav-dot" style="background:var(--network)"></span>Amazon Inspector</a>
+  <a class="nav-link" href="#waf">               <span class="nav-dot" style="background:var(--network)"></span>AWS WAF</a>
+  <a class="nav-link" href="#shield">            <span class="nav-dot" style="background:var(--network)"></span>AWS Shield</a>
+  <a class="nav-link" href="#sg">                <span class="nav-dot" style="background:var(--network)"></span>Security Groups</a>
+</nav>
+
+<!-- ══ MAIN ══ -->
+<main class="main">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-eyebrow">⚡Documentation</div>
+    <h1>AWS <span>Security</span><br>Tools Guide</h1>
+    <p class="hero-sub">
+      A comprehensive reference covering all 16 AWS security services across Identity & Access Management, Threat Detection, Data Protection, and Network Security — built for production-grade cloud environments.
+    </p>
+    <div class="hero-stats">
+      <div class="stat-item"><span class="stat-num">16</span><span class="stat-label">Services</span></div>
+      <div class="stat-item"><span class="stat-num">4</span><span class="stat-label">Categories</span></div>
+      <div class="stat-item"><span class="stat-num">16</span><span class="stat-label">Real-World Cases</span></div>
+    </div>
+  </section>
+
+  <!-- CATEGORY OVERVIEW CARDS -->
+  <div class="overview-grid">
+    <a href="#section-iam" style="text-decoration:none;color:inherit;">
+      <div class="overview-card">
+        <span class="ov-icon">🔐</span>
+        <div class="ov-title" style="color:var(--iam)">Identity & Access</div>
+        <div class="ov-count">4 services — IAM, Cognito, Secrets…</div>
+      </div>
+    </a>
+    <a href="#section-threat" style="text-decoration:none;color:inherit;">
+      <div class="overview-card">
+        <span class="ov-icon">⚠️</span>
+        <div class="ov-title" style="color:var(--threat)">Threat & Monitoring</div>
+        <div class="ov-count">6 services — GuardDuty, Hub, Trail…</div>
+      </div>
+    </a>
+    <a href="#section-data" style="text-decoration:none;color:inherit;">
+      <div class="overview-card">
+        <span class="ov-icon">🔒</span>
+        <div class="ov-title" style="color:var(--data)">Data Protection</div>
+        <div class="ov-count">2 services — KMS, Macie</div>
+      </div>
+    </a>
+    <a href="#section-net" style="text-decoration:none;color:inherit;">
+      <div class="overview-card">
+        <span class="ov-icon">🌐</span>
+        <div class="ov-title" style="color:var(--network)">App & Network</div>
+        <div class="ov-count">4 services — Inspector, WAF, Shield…</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- ═══════════════════════════════════ -->
+  <!--  CATEGORY 1: IDENTITY & ACCESS     -->
+  <!-- ═══════════════════════════════════ -->
+  <div id="section-iam">
+    <div class="category-header">
+      <div class="category-badge badge-iam">🔐 Category 01</div>
+      <h2>Identity & Access Management</h2>
+    </div>
+
+    <div class="services-grid">
+
+      <!-- AWS IAM -->
+      <div class="service-card" id="iam">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="card-icon" style="background:#f59e0b18;border:1px solid #f59e0b33;">🪪</div>
+          <div class="card-title-area">
+            <div class="card-name">AWS IAM</div>
+            <div class="card-tagline">Identity and Access Management</div>
+            <a class="card-ref-link" href="https://aws.amazon.com/iam/" target="_blank" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h4V1H1v10h10V7h-1v4H2V2zm5-1v1h2.293L4.146 7.146l.708.708L10 2.707V5h1V1H7z" fill="currentColor"/></svg>aws.amazon.com/iam</a>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body open">
+          <div class="section-label">Overview</div>
+          <p class="card-desc">
+            AWS Identity and Access Management (IAM) is the foundational security service in AWS that enables you to securely manage access to AWS services and resources. IAM lets you control <em>who</em> is authenticated (signed in) and <em>what</em> they are authorized to do. At its core, IAM operates on the principle of <strong>least privilege</strong> — granting only the permissions needed to perform a task and nothing more. IAM is a global service, meaning its configurations apply across all AWS regions, making it the single control plane for all access decisions in your AWS environment.
+          </p>
+          <div class="section-label">Key Features</div>
+          <div class="features-grid">
+            <div class="feature-pill"><span>👤</span> Users & Groups</div>
+            <div class="feature-pill"><span>📋</span> IAM Policies (JSON)</div>
+            <div class="feature-pill"><span>🎭</span> IAM Roles</div>
+            <div class="feature-pill"><span>🔑</span> MFA Support</div>
+            <div class="feature-pill"><span>🔗</span> Federation (SSO/SAML)</div>
+            <div class="feature-pill"><span>🔒</span> Permission Boundaries</div>
+            <div class="feature-pill"><span>⚙️</span> Service Control Policies</div>
+            <div class="feature-pill"><span>📊</span> Access Analyzer</div>
+          </div>
+          <div class="how-it-works">
+            <div class="section-label">How It Works</div>
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div>A <strong>Principal</strong> (user, role, or service) makes a request to access an AWS resource.</div></div>
+              <div class="step"><div class="step-num">2</div><div>AWS authenticates the principal using their credentials (password, access keys, or temporary tokens).</div></div>
+              <div class="step"><div class="step-num">3</div><div>IAM <strong>evaluates all applicable policies</strong> — identity-based, resource-based, permission boundaries, and SCPs.</div></div>
+              <div class="step"><div class="step-num">4</div><div>Access is <strong>allowed or denied</strong> based on the evaluation result. Explicit deny always wins.</div></div>
+            </div>
+          </div>
+          <div class="tip-box"><span class="tip-icon">💡</span> <span>Best Practice: Avoid using the root account for daily tasks. Create individual IAM users, attach policies, and enable MFA on all privileged accounts.</span></div>
+          <div class="rw-box rw-iam">
+            <div class="rw-header">
+              <span style="font-size:1.2rem">🌍</span>
+              <span class="rw-tag" style="color:var(--iam)">Real-World Scenario</span>
+            </div>
+            <div class="rw-company">Netflix — Preventing Credential Misuse & Privilege Escalation</div>
+            <span class="rw-attack-badge" style="background:#f59e0b18;color:var(--iam);border:1px solid #f59e0b33">⚔ Attack: Privilege Escalation</span>
+            <p class="rw-text">Netflix enforces strict IAM role-based access across hundreds of microservices running on AWS. By applying fine-grained IAM policies per service and using IAM roles with short-lived credentials (via STS AssumeRole), Netflix prevents lateral movement and privilege escalation attacks. If a container is compromised, its IAM role only has access to its specific S3 bucket or DynamoDB table — not the entire account — drastically limiting blast radius.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- IAM Identity Center -->
+      <div class="service-card" id="identity-center">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="card-icon" style="background:#f59e0b18;border:1px solid #f59e0b33;">🏢</div>
+          <div class="card-title-area">
+            <div class="card-name">IAM Identity Center</div>
+            <div class="card-tagline">formerly AWS Single Sign-On (SSO)</div>
+            <a class="card-ref-link" href="https://aws.amazon.com/iam/identity-center/" target="_blank" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h4V1H1v10h10V7h-1v4H2V2zm5-1v1h2.293L4.146 7.146l.708.708L10 2.707V5h1V1H7z" fill="currentColor"/></svg>aws.amazon.com/iam/identity-center</a>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body open">
+          <div class="section-label">Overview</div>
+          <p class="card-desc">
+            IAM Identity Center is AWS's centralized identity management service that enables single sign-on (SSO) access across all your AWS accounts and cloud applications from one place. It integrates with external identity providers (IdPs) such as Microsoft Active Directory, Azure AD, Okta, and Google Workspace using SAML 2.0, allowing employees to use their existing corporate credentials to access AWS resources. Rather than managing separate IAM users in each AWS account, Identity Center provides a single pane of glass for access management across multi-account AWS Organizations environments.
+          </p>
+          <div class="section-label">Key Features</div>
+          <div class="features-grid">
+            <div class="feature-pill"><span>🚪</span> Single Sign-On</div>
+            <div class="feature-pill"><span>📂</span> Multi-Account Access</div>
+            <div class="feature-pill"><span>🔌</span> SAML 2.0 / OIDC</div>
+            <div class="feature-pill"><span>🗂</span> Permission Sets</div>
+            <div class="feature-pill"><span>👥</span> AD / Azure AD Integration</div>
+            <div class="feature-pill"><span>📱</span> MFA Enforcement</div>
+            <div class="feature-pill"><span>📊</span> Access Logging</div>
+            <div class="feature-pill"><span>🌐</span> App Assignments</div>
+          </div>
+          <div class="how-it-works">
+            <div class="section-label">How It Works</div>
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div>Connect your existing <strong>corporate identity provider</strong> (Okta, Azure AD, etc.) to IAM Identity Center.</div></div>
+              <div class="step"><div class="step-num">2</div><div>Define <strong>Permission Sets</strong> that map to IAM roles (e.g., "Developer", "ReadOnly", "Admin").</div></div>
+              <div class="step"><div class="step-num">3</div><div>Assign groups/users to specific <strong>AWS accounts</strong> with the appropriate permission set.</div></div>
+              <div class="step"><div class="step-num">4</div><div>Users log in once via the Identity Center portal and get temporary credentials for any assigned account.</div></div>
+            </div>
+          </div>
+          <div class="rw-box rw-iam">
+            <div class="rw-header"><span style="font-size:1.2rem">🌍</span><span class="rw-tag" style="color:var(--iam)">Real-World Scenario</span></div>
+            <div class="rw-company">Airbnb — Securing Access Across 100+ AWS Accounts</div>
+            <span class="rw-attack-badge" style="background:#f59e0b18;color:var(--iam);border:1px solid #f59e0b33">⚔ Attack: Account Takeover via Compromised Corporate Credentials</span>
+            <p class="rw-text">Airbnb manages dozens of AWS accounts across dev, staging, and production environments. By federating through IAM Identity Center with Okta as the IdP, any compromised employee credential triggers automatic session revocation from a single control point. MFA is enforced at the IdP layer, so even phished passwords alone cannot grant AWS access, preventing the account takeover attacks that have hit many cloud-native companies.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Amazon Cognito -->
+      <div class="service-card" id="cognito">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="card-icon" style="background:#f59e0b18;border:1px solid #f59e0b33;">👤</div>
+          <div class="card-title-area">
+            <div class="card-name">Amazon Cognito</div>
+            <div class="card-tagline">Customer Identity & Access Management (CIAM)</div>
+            <a class="card-ref-link" href="https://aws.amazon.com/pm/cognito/" target="_blank" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h4V1H1v10h10V7h-1v4H2V2zm5-1v1h2.293L4.146 7.146l.708.708L10 2.707V5h1V1H7z" fill="currentColor"/></svg>aws.amazon.com/pm/cognito</a>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body open">
+          <div class="section-label">Overview</div>
+          <p class="card-desc">
+            Amazon Cognito is a fully managed customer identity platform designed for web and mobile applications. Unlike IAM (which manages internal AWS users), Cognito manages your <em>end customers</em> — enabling sign-up, sign-in, and access control for millions of users. It provides two main components: <strong>User Pools</strong> (a user directory for authentication) and <strong>Identity Pools</strong> (for granting temporary AWS credentials to authenticated users). Cognito supports social sign-in (Google, Facebook, Apple), enterprise SAML/OIDC federation, and built-in security features like adaptive authentication, compromised credential detection, and advanced security mode.
+          </p>
+          <div class="section-label">Key Features</div>
+          <div class="features-grid">
+            <div class="feature-pill"><span>📧</span> User Pools (Auth)</div>
+            <div class="feature-pill"><span>🔑</span> Identity Pools (AuthZ)</div>
+            <div class="feature-pill"><span>🌐</span> Social Login (Google/FB)</div>
+            <div class="feature-pill"><span>📱</span> MFA & OTP</div>
+            <div class="feature-pill"><span>🤖</span> Bot Detection</div>
+            <div class="feature-pill"><span>🔐</span> JWT Tokens</div>
+            <div class="feature-pill"><span>🔄</span> SAML / OIDC</div>
+            <div class="feature-pill"><span>📊</span> Adaptive Auth</div>
+          </div>
+          <div class="how-it-works">
+            <div class="section-label">How It Works</div>
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div>User signs up/logs in through your app, which calls the <strong>Cognito User Pool</strong> API.</div></div>
+              <div class="step"><div class="step-num">2</div><div>Cognito verifies credentials, performs MFA, and issues <strong>JWT tokens</strong> (ID, Access, Refresh).</div></div>
+              <div class="step"><div class="step-num">3</div><div>The app exchanges tokens with the <strong>Identity Pool</strong> to get temporary AWS credentials (via STS).</div></div>
+              <div class="step"><div class="step-num">4</div><div>User accesses AWS resources (e.g., S3, API Gateway) with scoped, temporary credentials.</div></div>
+            </div>
+          </div>
+          <div class="rw-box rw-iam">
+            <div class="rw-header"><span style="font-size:1.2rem">🌍</span><span class="rw-tag" style="color:var(--iam)">Real-World Scenario</span></div>
+            <div class="rw-company">Samsung SmartThings — Blocking Credential Stuffing at Scale</div>
+            <span class="rw-attack-badge" style="background:#f59e0b18;color:var(--iam);border:1px solid #f59e0b33">⚔ Attack: Credential Stuffing / Account Takeover</span>
+            <p class="rw-text">SmartThings, Samsung's IoT platform built on AWS, uses Amazon Cognito with Advanced Security Mode enabled to protect millions of smart home user accounts. Cognito's built-in compromised credential checks and adaptive authentication automatically challenge suspicious login attempts — such as logins from unusual geolocations or via known breached password lists — blocking large-scale credential stuffing campaigns that attempted to hijack user accounts and control connected home devices.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Secrets Manager -->
+      <div class="service-card" id="secrets">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="card-icon" style="background:#f59e0b18;border:1px solid #f59e0b33;">🗝</div>
+          <div class="card-title-area">
+            <div class="card-name">AWS Secrets Manager</div>
+            <div class="card-tagline">Secure credential & secret lifecycle management</div>
+            <a class="card-ref-link" href="https://aws.amazon.com/secrets-manager/" target="_blank" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h4V1H1v10h10V7h-1v4H2V2zm5-1v1h2.293L4.146 7.146l.708.708L10 2.707V5h1V1H7z" fill="currentColor"/></svg>aws.amazon.com/secrets-manager</a>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body open">
+          <div class="section-label">Overview</div>
+          <p class="card-desc">
+            AWS Secrets Manager is a fully managed service that enables you to securely store, manage, and automatically rotate sensitive information such as database credentials, API keys, OAuth tokens, and third-party service passwords. It eliminates the dangerous practice of hardcoding secrets in code, configuration files, or environment variables. Secrets are encrypted at rest using AWS KMS and access is controlled via IAM policies. The service natively integrates with Amazon RDS, Redshift, and DocumentDB to rotate credentials automatically without application downtime, implementing zero-trust principles for secret management.
+          </p>
+          <div class="section-label">Key Features</div>
+          <div class="features-grid">
+            <div class="feature-pill"><span>🔄</span> Automatic Rotation</div>
+            <div class="feature-pill"><span>🔐</span> KMS Encryption</div>
+            <div class="feature-pill"><span>🗃</span> Versioning</div>
+            <div class="feature-pill"><span>📋</span> IAM-based Access Control</div>
+            <div class="feature-pill"><span>🔗</span> RDS / Aurora Integration</div>
+            <div class="feature-pill"><span>📡</span> Cross-Account Access</div>
+            <div class="feature-pill"><span>📊</span> Audit via CloudTrail</div>
+            <div class="feature-pill"><span>📦</span> Resource Tagging</div>
+          </div>
+          <div class="how-it-works">
+            <div class="section-label">How It Works</div>
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div>Store a secret (e.g., DB password) in Secrets Manager. It's <strong>encrypted with KMS</strong> immediately.</div></div>
+              <div class="step"><div class="step-num">2</div><div>Application calls <code>GetSecretValue</code> API at runtime — <strong>no hardcoded credentials</strong> in code.</div></div>
+              <div class="step"><div class="step-num">3</div><div>A <strong>Lambda rotation function</strong> fires on schedule, generates a new credential, and updates both the DB and the secret store.</div></div>
+              <div class="step"><div class="step-num">4</div><div>All access attempts are logged to <strong>CloudTrail</strong> for audit purposes.</div></div>
+            </div>
+          </div>
+          <div class="rw-box rw-iam">
+            <div class="rw-header"><span style="font-size:1.2rem">🌍</span><span class="rw-tag" style="color:var(--iam)">Real-World Scenario</span></div>
+            <div class="rw-company">Capital One — Preventing Secrets Exposure from Source Code Leaks</div>
+            <span class="rw-attack-badge" style="background:#f59e0b18;color:var(--iam);border:1px solid #f59e0b33">⚔ Attack: Secrets Exfiltration via Git Commit / SSRF</span>
+            <p class="rw-text">Following the 2019 Capital One breach (where hardcoded credentials contributed to massive data exposure), the financial institution adopted AWS Secrets Manager to ensure zero credentials ever appear in source code or environment variables. Secrets rotate automatically every 30 days, and any access outside approved IAM roles triggers an immediate alert. This approach directly addresses the server-side request forgery (SSRF) attack vector that was exploited to steal credentials from EC2 instance metadata.</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /services-grid -->
+  </div><!-- /section-iam -->
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════ -->
+  <!--  CATEGORY 2: THREAT & MONITORING   -->
+  <!-- ═══════════════════════════════════ -->
+  <div id="section-threat">
+    <div class="category-header">
+      <div class="category-badge badge-threat">⚠ Category 02</div>
+      <h2>Threat Detection, Compliance & Monitoring</h2>
+    </div>
+
+    <div class="services-grid">
+
+      <!-- GuardDuty -->
+      <div class="service-card" id="guardduty">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="card-icon" style="background:#ef444418;border:1px solid #ef444433;">🛡</div>
+          <div class="card-title-area">
+            <div class="card-name">Amazon GuardDuty</div>
+            <div class="card-tagline">ML-powered continuous threat detection</div>
+            <a class="card-ref-link" href="https://aws.amazon.com/guardduty/" target="_blank" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h4V1H1v10h10V7h-1v4H2V2zm5-1v1h2.293L4.146 7.146l.708.708L10 2.707V5h1V1H7z" fill="currentColor"/></svg>aws.amazon.com/guardduty</a>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body open">
+          <div class="section-label">Overview</div>
+          <p class="card-desc">
+            Amazon GuardDuty is an intelligent threat detection service that continuously monitors your AWS accounts, workloads, and data for malicious activity and unauthorized behavior. It analyzes billions of events across multiple AWS data sources — including <strong>AWS CloudTrail logs, VPC Flow Logs, and DNS logs</strong> — using machine learning, anomaly detection, and integrated threat intelligence (from AWS, CrowdStrike, and Proofpoint). GuardDuty identifies threats such as cryptocurrency mining, credential theft, data exfiltration, reconnaissance attacks, and compromised EC2 instances — all without requiring you to deploy or manage any security software or infrastructure.
+          </p>
+          <div class="section-label">Key Features</div>
+          <div class="features-grid">
+            <div class="feature-pill"><span>🤖</span> ML Anomaly Detection</div>
+            <div class="feature-pill"><span>🌊</span> VPC Flow Log Analysis</div>
+            <div class="feature-pill"><span>📜</span> CloudTrail Integration</div>
+            <div class="feature-pill"><span>🌐</span> DNS Query Analysis</div>
+            <div class="feature-pill"><span>🔔</span> Real-time Findings</div>
+            <div class="feature-pill"><span>🏢</span> Multi-Account Support</div>
+            <div class="feature-pill"><span>🐳</span> EKS Runtime Monitoring</div>
+            <div class="feature-pill"><span>🗃</span> S3 Protection</div>
+          </div>
+          <div class="how-it-works">
+            <div class="section-label">How It Works</div>
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div>GuardDuty ingests event data from CloudTrail, VPC Flow Logs, and DNS logs <strong>automatically</strong> — no agents needed.</div></div>
+              <div class="step"><div class="step-num">2</div><div>Machine learning models and <strong>threat intelligence feeds</strong> analyze billions of data points continuously.</div></div>
+              <div class="step"><div class="step-num">3</div><div>Findings are generated with severity levels (Low/Medium/High) and actionable context.</div></div>
+              <div class="step"><div class="step-num">4</div><div>Findings trigger <strong>EventBridge rules</strong> → Lambda → automated remediation (e.g., isolate EC2, revoke credentials).</div></div>
+            </div>
+          </div>
+          <div class="rw-box rw-threat">
+            <div class="rw-header"><span style="font-size:1.2rem">🌍</span><span class="rw-tag" style="color:var(--threat)">Real-World Scenario</span></div>
+            <div class="rw-company">Lyft — Detecting Cryptomining after EC2 Compromise</div>
+            <span class="rw-attack-badge" style="background:#ef444418;color:var(--threat);border:1px solid #ef444433">⚔ Attack: EC2 Cryptomining via Compromised Credentials</span>
+            <p class="rw-text">Lyft uses Amazon GuardDuty across its entire AWS organization to detect unauthorized resource usage. When attackers gained access to misconfigured IAM credentials and launched GPU-based EC2 instances for cryptocurrency mining, GuardDuty flagged the unusual API calls and abnormal network communication within minutes. An automated EventBridge → Lambda pipeline immediately quarantined the compromised instances and revoked the exposed credentials before significant damage occurred.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Hub -->
+      <div class="service-card" id="securityhub">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="card-icon" style="background:#ef444418;border:1px solid #ef444433;">📊</div>
+          <div class="card-title-area">
+            <div class="card-name">AWS Security Hub</div>
+            <div class="card-tagline">Centralized security posture management & findings aggregation</div>
+            <a class="card-ref-link" href="https://aws.amazon.com/security-hub/" target="_blank" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h4V1H1v10h10V7h-1v4H2V2zm5-1v1h2.293L4.146 7.146l.708.708L10 2.707V5h1V1H7z" fill="currentColor"/></svg>aws.amazon.com/security-hub</a>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body open">
+          <div class="section-label">Overview</div>
+          <p class="card-desc">
+            AWS Security Hub provides a comprehensive, centralized view of your security state across your AWS environment. It aggregates, organizes, and prioritizes security findings from multiple AWS services (GuardDuty, Inspector, Macie, IAM Access Analyzer, Firewall Manager) and third-party tools (Splunk, Palo Alto, etc.) into a single, normalized dashboard. Security Hub continuously runs automated security checks against industry standards and best practices including <strong>CIS AWS Foundations Benchmark, AWS Foundational Security Best Practices (FSBP), PCI DSS, and NIST 800-53</strong>, giving you a security score and actionable findings.
+          </p>
+          <div class="section-label">Key Features</div>
+          <div class="features-grid">
+            <div class="feature-pill"><span>🔍</span> Findings Aggregation</div>
+            <div class="feature-pill"><span>📋</span> CIS / PCI / NIST Checks</div>
+            <div class="feature-pill"><span>🏢</span> Multi-Account View</div>
+            <div class="feature-pill"><span>📦</span> ASFF Standard Format</div>
+            <div class="feature-pill"><span>🔔</span> Custom Actions</div>
+            <div class="feature-pill"><span>🌐</span> 3rd Party Integrations</div>
+            <div class="feature-pill"><span>📊</span> Security Score</div>
+            <div class="feature-pill"><span>⚙️</span> Automated Remediation</div>
+          </div>
+          <div class="how-it-works">
+            <div class="section-label">How It Works</div>
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div>Enable Security Hub — it <strong>automatically ingests findings</strong> from GuardDuty, Inspector, Macie, and more.</div></div>
+              <div class="step"><div class="step-num">2</div><div>All findings are normalized to the <strong>Amazon Security Finding Format (ASFF)</strong> for consistent analysis.</div></div>
+              <div class="step"><div class="step-num">3</div><div>Compliance checks run continuously, assigning a <strong>security score (0–100%)</strong> per account and standard.</div></div>
+              <div class="step"><div class="step-num">4</div><div>Security teams triage, investigate, and trigger remediation workflows via <strong>EventBridge or ticketing systems</strong>.</div></div>
+            </div>
+          </div>
+          <div class="rw-box rw-threat">
+            <div class="rw-header"><span style="font-size:1.2rem">🌍</span><span class="rw-tag" style="color:var(--threat)">Real-World Scenario</span></div>
+            <div class="rw-company">GE Healthcare — Achieving HIPAA Compliance Visibility Across 200+ Accounts</div>
+            <span class="rw-attack-badge" style="background:#ef444418;color:var(--threat);border:1px solid #ef444433">⚔ Attack: Misconfiguration Leading to PHI Exposure</span>
+            <p class="rw-text">GE Healthcare manages over 200 AWS accounts handling sensitive patient health information (PHI). Using AWS Security Hub as the central command center, their security team monitors the HIPAA-aligned security standard across all accounts simultaneously. Security Hub detected publicly accessible S3 buckets containing encrypted health records within seconds of misconfiguration — a finding that was automatically remediated via Lambda before any unauthorized access could occur.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Amazon Detective -->
+      <div class="service-card" id="detective">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="card-icon" style="background:#ef444418;border:1px solid #ef444433;">🔎</div>
+          <div class="card-title-area">
+            <div class="card-name">Amazon Detective</div>
+            <div class="card-tagline">Security investigation & root cause analysis</div>
+            <a class="card-ref-link" href="https://aws.amazon.com/detective/" target="_blank" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h4V1H1v10h10V7h-1v4H2V2zm5-1v1h2.293L4.146 7.146l.708.708L10 2.707V5h1V1H7z" fill="currentColor"/></svg>aws.amazon.com/detective</a>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body open">
+          <div class="section-label">Overview</div>
+          <p class="card-desc">
+            Amazon Detective makes it easy to analyze, investigate, and quickly identify the root cause of potential security issues or suspicious activities across your AWS workloads. While GuardDuty <em>detects</em> threats, Detective helps you <em>investigate</em> them deeply. It automatically collects log data from CloudTrail, VPC Flow Logs, GuardDuty findings, and other sources and uses machine learning, statistical analysis, and graph theory to build a comprehensive, interactive, time-series visualization of resource behaviors and interactions — eliminating the need to manually extract and stitch together logs from multiple sources.
+          </p>
+          <div class="section-label">Key Features</div>
+          <div class="features-grid">
+            <div class="feature-pill"><span>🕸</span> Behavior Graph Model</div>
+            <div class="feature-pill"><span>📈</span> Time-series Visualization</div>
+            <div class="feature-pill"><span>🔗</span> GuardDuty Integration</div>
+            <div class="feature-pill"><span>🌊</span> VPC Flow Analysis</div>
+            <div class="feature-pill"><span>👤</span> Entity Profiling</div>
+            <div class="feature-pill"><span>🗓</span> Historical Baselines</div>
+            <div class="feature-pill"><span>🧩</span> Lateral Movement Detection</div>
+            <div class="feature-pill"><span>📂</span> Multi-Account Support</div>
+          </div>
+          <div class="how-it-works">
+            <div class="section-label">How It Works</div>
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div>Detective <strong>automatically ingests</strong> up to 1 year of CloudTrail, VPC Flow Logs, and GuardDuty findings.</div></div>
+              <div class="step"><div class="step-num">2</div><div>It builds a <strong>behavior graph</strong> — a persistent model of resource relationships, network activity, and user behavior over time.</div></div>
+              <div class="step"><div class="step-num">3</div><div>When a GuardDuty finding is triggered, analysts pivot directly into Detective to see the <strong>full incident timeline</strong>.</div></div>
+              <div class="step"><div class="step-num">4</div><div>Visualizations reveal lateral movement, data staging, and the <strong>blast radius of compromise</strong> without manual log analysis.</div></div>
+            </div>
+          </div>
+          <div class="rw-box rw-threat">
+            <div class="rw-header"><span style="font-size:1.2rem">🌍</span><span class="rw-tag" style="color:var(--threat)">Real-World Scenario</span></div>
+            <div class="rw-company">Expedia — Investigating Insider Threat & Lateral Movement</div>
+            <span class="rw-attack-badge" style="background:#ef444418;color:var(--threat);border:1px solid #ef444433">⚔ Attack: Insider Threat / Lateral Movement</span>
+            <p class="rw-text">Expedia's security team leveraged Amazon Detective to investigate a suspicious activity pattern flagged by GuardDuty involving unusual API calls from a developer IAM role. Detective's behavior graph revealed the role had accessed 47 S3 buckets over 3 days — far outside its baseline behavior — allowing analysts to trace the full attack chain, identify the initial access vector (a compromised developer laptop), and contain the incident in under 2 hours instead of the typical 2-week manual investigation timeframe.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CloudTrail -->
+      <div class="service-card" id="cloudtrail">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="card-icon" style="background:#ef444418;border:1px solid #ef444433;">📜</div>
+          <div class="card-title-area">
+            <div class="card-name">AWS CloudTrail</div>
+            <div class="card-tagline">API activity logging & governance audit trail</div>
+            <a class="card-ref-link" href="https://aws.amazon.com/cloudtrail/" target="_blank" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h4V1H1v10h10V7h-1v4H2V2zm5-1v1h2.293L4.146 7.146l.708.708L10 2.707V5h1V1H7z" fill="currentColor"/></svg>aws.amazon.com/cloudtrail</a>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body open">
+          <div class="section-label">Overview</div>
+          <p class="card-desc">
+            AWS CloudTrail is the AWS governance, compliance, and operational auditing service that records every API call and activity made in your AWS account. Every action — whether from the AWS Console, CLI, SDKs, or other services — generates an event log stored in S3 and optionally in CloudWatch Logs. CloudTrail answers the critical security questions: <em>Who did what, when, and from where?</em> It provides an immutable, tamper-evident log of all management events (control plane) and data events (data plane operations on S3, Lambda, DynamoDB). CloudTrail Insights uses ML to automatically detect unusual API activity patterns indicative of an attack.
+          </p>
+          <div class="section-label">Key Features</div>
+          <div class="features-grid">
+            <div class="feature-pill"><span>📝</span> Management Events</div>
+            <div class="feature-pill"><span>📦</span> Data Events (S3/Lambda)</div>
+            <div class="feature-pill"><span>🔍</span> CloudTrail Insights (ML)</div>
+            <div class="feature-pill"><span>🔒</span> Log File Validation</div>
+            <div class="feature-pill"><span>🏢</span> Organization Trails</div>
+            <div class="feature-pill"><span>🔗</span> CloudWatch Integration</div>
+            <div class="feature-pill"><span>📊</span> Athena Query Support</div>
+            <div class="feature-pill"><span>🗄</span> S3 Log Storage</div>
+          </div>
+          <div class="how-it-works">
+            <div class="section-label">How It Works</div>
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div>Every API call to any AWS service generates a <strong>CloudTrail event</strong> with requester identity, source IP, timestamp, and result.</div></div>
+              <div class="step"><div class="step-num">2</div><div>Events are <strong>delivered to S3 within 15 minutes</strong> and optionally streamed to CloudWatch Logs in near-real-time.</div></div>
+              <div class="step"><div class="step-num">3</div><div><strong>Log File Validation</strong> uses SHA-256 digest files to prove logs haven't been tampered with after delivery.</div></div>
+              <div class="step"><div class="step-num">4</div><div>Security teams query logs with <strong>Amazon Athena</strong> or use CloudWatch Alarms for real-time alert on suspicious events.</div></div>
+            </div>
+          </div>
+          <div class="rw-box rw-threat">
+            <div class="rw-header"><span style="font-size:1.2rem">🌍</span><span class="rw-tag" style="color:var(--threat)">Real-World Scenario</span></div>
+            <div class="rw-company">Twilio — Forensic Investigation of Supply Chain Attack</div>
+            <span class="rw-attack-badge" style="background:#ef444418;color:var(--threat);border:1px solid #ef444433">⚔ Attack: Supply Chain / Social Engineering Attack</span>
+            <p class="rw-text">During Twilio's 2022 supply chain attack, where attackers used stolen employee credentials to access internal systems, AWS CloudTrail logs provided the complete forensic timeline of every API action taken by compromised accounts. Security engineers used CloudTrail Insights alongside Athena queries to identify the exact customer data accessed, the duration of unauthorized access, and the specific API calls made — information that was critical for regulatory disclosure and for hardening access policies in the aftermath.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AWS Config -->
+      <div class="service-card" id="config">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="card-icon" style="background:#ef444418;border:1px solid #ef444433;">⚙️</div>
+          <div class="card-title-area">
+            <div class="card-name">AWS Config</div>
+            <div class="card-tagline">Resource configuration history, change tracking & compliance</div>
+            <a class="card-ref-link" href="https://aws.amazon.com/config/" target="_blank" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h4V1H1v10h10V7h-1v4H2V2zm5-1v1h2.293L4.146 7.146l.708.708L10 2.707V5h1V1H7z" fill="currentColor"/></svg>aws.amazon.com/config</a>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body open">
+          <div class="section-label">Overview</div>
+          <p class="card-desc">
+            AWS Config is a service that enables you to assess, audit, and evaluate the configurations of your AWS resources over time. It continuously records the configuration state of every AWS resource in your account and tracks how configurations change. Config allows you to define <strong>Config Rules</strong> — desired configuration policies — and automatically evaluates resources against them. When a resource deviates from the desired state (e.g., an S3 bucket becomes public, a security group opens port 22 to the world), Config flags it as <em>non-compliant</em> and can trigger automated remediation via SSM Automation. Config is indispensable for cloud governance, change management, and regulatory compliance (SOC 2, PCI DSS, HIPAA).
+          </p>
+          <div class="section-label">Key Features</div>
+          <div class="features-grid">
+            <div class="feature-pill"><span>📸</span> Configuration Snapshots</div>
+            <div class="feature-pill"><span>🕒</span> Change Timeline</div>
+            <div class="feature-pill"><span>📋</span> Managed Config Rules</div>
+            <div class="feature-pill"><span>✍️</span> Custom Rules (Lambda)</div>
+            <div class="feature-pill"><span>🔧</span> Auto Remediation (SSM)</div>
+            <div class="feature-pill"><span>📊</span> Compliance Dashboard</div>
+            <div class="feature-pill"><span>🏢</span> Organization-wide</div>
+            <div class="feature-pill"><span>🔗</span> Resource Relationships</div>
+          </div>
+          <div class="how-it-works">
+            <div class="section-label">How It Works</div>
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div>Config discovers all AWS resources and records their <strong>initial configuration state</strong> as a snapshot.</div></div>
+              <div class="step"><div class="step-num">2</div><div>Any configuration change triggers a new <strong>Configuration Item</strong> recording the before/after state, who changed it, and when.</div></div>
+              <div class="step"><div class="step-num">3</div><div>Config Rules evaluate each change against your <strong>compliance policies</strong> — flagging violations immediately.</div></div>
+              <div class="step"><div class="step-num">4</div><div>Non-compliant resources trigger <strong>SSM Automation documents</strong> for auto-remediation or SNS alerts for manual review.</div></div>
+            </div>
+          </div>
+          <div class="rw-box rw-threat">
+            <div class="rw-header"><span style="font-size:1.2rem">🌍</span><span class="rw-tag" style="color:var(--threat)">Real-World Scenario</span></div>
+            <div class="rw-company">Intuit — Preventing Security Group Drift in PCI-DSS Environment</div>
+            <span class="rw-attack-badge" style="background:#ef444418;color:var(--threat);border:1px solid #ef444433">⚔ Attack: Configuration Drift Opening Attack Surface</span>
+            <p class="rw-text">Intuit (makers of TurboTax and QuickBooks) uses AWS Config with custom remediation rules across its PCI-DSS cardholder data environments. When a developer accidentally opened port 3306 (MySQL) to 0.0.0.0/0 on a production security group, AWS Config detected the change within 2 minutes, triggered an SSM Automation document to revert the rule, and sent an alert to the security team — preventing an attack window that could have exposed financial data to internet-based SQL injection attempts.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CloudWatch -->
+      <div class="service-card" id="cloudwatch">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="card-icon" style="background:#ef444418;border:1px solid #ef444433;">📡</div>
+          <div class="card-title-area">
+            <div class="card-name">AWS CloudWatch</div>
+            <div class="card-tagline">Operational monitoring, logging, metrics & security alerting</div>
+            <a class="card-ref-link" href="https://aws.amazon.com/cloudwatch/" target="_blank" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h4V1H1v10h10V7h-1v4H2V2zm5-1v1h2.293L4.146 7.146l.708.708L10 2.707V5h1V1H7z" fill="currentColor"/></svg>aws.amazon.com/cloudwatch</a>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body open">
+          <div class="section-label">Overview</div>
+          <p class="card-desc">
+            AWS CloudWatch is the unified observability and monitoring platform for AWS that collects metrics, logs, and events from your entire AWS infrastructure and applications. From a security perspective, CloudWatch serves as the <strong>real-time alerting and anomaly detection</strong> layer — it ingests CloudTrail logs, application logs, and system-level metrics, then allows you to define Metric Filters that create alarms on security-relevant events (e.g., root login, IAM policy changes, failed console logins, VPC changes). CloudWatch Anomaly Detection uses ML to establish baselines and detect deviations, while CloudWatch Synthetics can proactively test application availability against attacks.
+          </p>
+          <div class="section-label">Key Features</div>
+          <div class="features-grid">
+            <div class="feature-pill"><span>📊</span> Metrics & Dashboards</div>
+            <div class="feature-pill"><span>📝</span> Log Groups & Insights</div>
+            <div class="feature-pill"><span>🔔</span> Alarms & SNS</div>
+            <div class="feature-pill"><span>🔍</span> Metric Filters</div>
+            <div class="feature-pill"><span>🤖</span> Anomaly Detection</div>
+            <div class="feature-pill"><span>🧪</span> Synthetics Canaries</div>
+            <div class="feature-pill"><span>⚡</span> EventBridge Rules</div>
+            <div class="feature-pill"><span>📅</span> Log Retention Policies</div>
+          </div>
+          <div class="how-it-works">
+            <div class="section-label">How It Works</div>
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div>CloudTrail and application logs stream into <strong>CloudWatch Log Groups</strong> in real time.</div></div>
+              <div class="step"><div class="step-num">2</div><div><strong>Metric Filters</strong> parse log events (e.g., "ConsoleLogin where MFAUsed=No") and create custom security metrics.</div></div>
+              <div class="step"><div class="step-num">3</div><div>CloudWatch <strong>Alarms</strong> fire when metric thresholds are breached, triggering SNS notifications or Lambda functions.</div></div>
+              <div class="step"><div class="step-num">4</div><div><strong>CloudWatch Insights</strong> lets teams run SQL-like queries over millions of log events for rapid incident investigation.</div></div>
+            </div>
+          </div>
+          <div class="rw-box rw-threat">
+            <div class="rw-header"><span style="font-size:1.2rem">🌍</span><span class="rw-tag" style="color:var(--threat)">Real-World Scenario</span></div>
+            <div class="rw-company">Slack — Early Detection of Brute-Force Console Login Attacks</div>
+            <span class="rw-attack-badge" style="background:#ef444418;color:var(--threat);border:1px solid #ef444433">⚔ Attack: Console Brute-Force / Password Spraying</span>
+            <p class="rw-text">Slack's AWS security team configured CloudWatch Metric Filters on their CloudTrail log group to alert on any AWS Console login attempt without MFA, as well as patterns of 5+ consecutive authentication failures within 60 seconds — a signature of password spraying attacks. When a threat actor attempted a password spray against their AWS accounts from a Tor exit node, CloudWatch Alarms fired within 30 seconds, triggering an automated Lambda that blocked the source IP at the AWS WAF and notified the on-call security engineer simultaneously.</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /services-grid -->
+  </div><!-- /section-threat -->
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════ -->
+  <!--  CATEGORY 3: DATA PROTECTION       -->
+  <!-- ═══════════════════════════════════ -->
+  <div id="section-data">
+    <div class="category-header">
+      <div class="category-badge badge-data">🔒 Category 03</div>
+      <h2>Data Protection</h2>
+    </div>
+
+    <div class="services-grid">
+
+      <!-- KMS -->
+      <div class="service-card" id="kms">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="card-icon" style="background:#10b98118;border:1px solid #10b98133;">🔑</div>
+          <div class="card-title-area">
+            <div class="card-name">AWS Key Management Service (KMS)</div>
+            <div class="card-tagline">Managed encryption key creation & control</div>
+            <a class="card-ref-link" href="https://aws.amazon.com/kms/" target="_blank" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h4V1H1v10h10V7h-1v4H2V2zm5-1v1h2.293L4.146 7.146l.708.708L10 2.707V5h1V1H7z" fill="currentColor"/></svg>aws.amazon.com/kms</a>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body open">
+          <div class="section-label">Overview</div>
+          <p class="card-desc">
+            AWS Key Management Service (KMS) is a fully managed encryption service that makes it easy to create, control, and manage cryptographic keys used to encrypt your data. KMS integrates seamlessly with nearly all AWS services (S3, EBS, RDS, DynamoDB, Lambda, Secrets Manager, etc.) to provide envelope encryption, where a <strong>Customer Master Key (CMK)</strong> encrypts data keys that in turn encrypt the actual data. Keys are protected by FIPS 140-2 validated Hardware Security Modules (HSMs). KMS provides a detailed audit log via CloudTrail of every key usage, ensuring you always know who used which key, when, and for what purpose.
+          </p>
+          <div class="section-label">Key Features</div>
+          <div class="features-grid">
+            <div class="feature-pill"><span>🔐</span> AES-256 / RSA / ECC</div>
+            <div class="feature-pill"><span>🏭</span> FIPS 140-2 HSMs</div>
+            <div class="feature-pill"><span>🔄</span> Automatic Key Rotation</div>
+            <div class="feature-pill"><span>📋</span> Key Policies</div>
+            <div class="feature-pill"><span>🌐</span> Cross-Region Replication</div>
+            <div class="feature-pill"><span>🔗</span> Multi-Region Keys</div>
+            <div class="feature-pill"><span>📊</span> CloudTrail Audit</div>
+            <div class="feature-pill"><span>🏢</span> Custom Key Stores (HSM)</div>
+          </div>
+          <div class="how-it-works">
+            <div class="section-label">How It Works — Envelope Encryption</div>
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div>Your app requests a <strong>data encryption key (DEK)</strong> from KMS. KMS generates a plaintext + encrypted copy of the DEK.</div></div>
+              <div class="step"><div class="step-num">2</div><div>Your app uses the <strong>plaintext DEK</strong> to encrypt your data locally, then discards the plaintext DEK.</div></div>
+              <div class="step"><div class="step-num">3</div><div>Only the <strong>encrypted DEK</strong> is stored alongside the ciphertext — never the plaintext key.</div></div>
+              <div class="step"><div class="step-num">4</div><div>To decrypt, your app sends the encrypted DEK to KMS. KMS decrypts it using the CMK (after validating IAM + key policy), and returns the plaintext DEK.</div></div>
+            </div>
+          </div>
+          <div class="rw-box rw-data">
+            <div class="rw-header"><span style="font-size:1.2rem">🌍</span><span class="rw-tag" style="color:var(--data)">Real-World Scenario</span></div>
+            <div class="rw-company">Johnson & Johnson — Protecting Clinical Trial Data from Ransomware</div>
+            <span class="rw-attack-badge" style="background:#10b98118;color:var(--data);border:1px solid #10b98133">⚔ Attack: Ransomware / Data Theft</span>
+            <p class="rw-text">Johnson & Johnson's pharmaceutical division stores sensitive FDA-regulated clinical trial data on AWS. By enforcing KMS encryption on all S3 buckets and RDS databases with customer-managed CMKs, even if ransomware actors exfiltrate raw data, it remains completely unreadable without the CMK — which is controlled by strict IAM key policies accessible only to a small set of audited principals. Annual key rotation and CloudTrail key usage logging ensure full traceability of every data access event.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Macie -->
+      <div class="service-card" id="macie">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="card-icon" style="background:#10b98118;border:1px solid #10b98133;">🔍</div>
+          <div class="card-title-area">
+            <div class="card-name">Amazon Macie</div>
+            <div class="card-tagline">ML-powered sensitive data discovery & S3 security</div>
+            <a class="card-ref-link" href="https://aws.amazon.com/macie/" target="_blank" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h4V1H1v10h10V7h-1v4H2V2zm5-1v1h2.293L4.146 7.146l.708.708L10 2.707V5h1V1H7z" fill="currentColor"/></svg>aws.amazon.com/macie</a>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body open">
+          <div class="section-label">Overview</div>
+          <p class="card-desc">
+            Amazon Macie is a data security service that uses machine learning to automatically discover, classify, and protect sensitive data stored in Amazon S3. Macie continuously evaluates your S3 environment for public accessibility, unencrypted buckets, and shared access configurations, while simultaneously scanning the actual content of objects to identify sensitive data such as <strong>Personally Identifiable Information (PII), Protected Health Information (PHI), financial data (credit card numbers, banking details), and credentials</strong>. It supports over 80 managed data identifiers and allows you to create custom regex-based identifiers for organization-specific sensitive data patterns.
+          </p>
+          <div class="section-label">Key Features</div>
+          <div class="features-grid">
+            <div class="feature-pill"><span>🤖</span> ML Data Classification</div>
+            <div class="feature-pill"><span>🪣</span> S3 Security Posture</div>
+            <div class="feature-pill"><span>👤</span> PII / PHI Detection</div>
+            <div class="feature-pill"><span>💳</span> Financial Data Scanning</div>
+            <div class="feature-pill"><span>✍️</span> Custom Data Identifiers</div>
+            <div class="feature-pill"><span>🔔</span> Real-time Findings</div>
+            <div class="feature-pill"><span>🏢</span> Multi-Account Support</div>
+            <div class="feature-pill"><span>🔗</span> Security Hub Integration</div>
+          </div>
+          <div class="how-it-works">
+            <div class="section-label">How It Works</div>
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div>Macie <strong>inventories all S3 buckets</strong> and immediately flags those that are public, unencrypted, or shared externally.</div></div>
+              <div class="step"><div class="step-num">2</div><div><strong>Sensitive data discovery jobs</strong> scan object contents using 80+ managed identifiers (SSN, credit cards, passports, API keys, etc.).</div></div>
+              <div class="step"><div class="step-num">3</div><div>Findings (e.g., "S3 bucket contains 1,432 objects with PII") are published to <strong>Security Hub and EventBridge</strong>.</div></div>
+              <div class="step"><div class="step-num">4</div><div>Teams can view a <strong>sensitive data heat map</strong> across all buckets to prioritize remediation and access control tightening.</div></div>
+            </div>
+          </div>
+          <div class="rw-box rw-data">
+            <div class="rw-header"><span style="font-size:1.2rem">🌍</span><span class="rw-tag" style="color:var(--data)">Real-World Scenario</span></div>
+            <div class="rw-company">Pfizer — Discovering Unintentionally Exposed Patient Data in S3</div>
+            <span class="rw-attack-badge" style="background:#10b98118;color:var(--data);border:1px solid #10b98133">⚔ Attack: Data Exposure via S3 Misconfiguration</span>
+            <p class="rw-text">Pfizer runs large-scale genomics and clinical research data pipelines on AWS, resulting in tens of thousands of S3 objects across research accounts. Amazon Macie continuously scans these buckets and discovered an unintentionally public research bucket containing 12,000 CSV files with patient names, trial IDs, and genetic markers — GDPR and HIPAA-sensitive data. The finding was surfaced within 4 hours of the bucket being inadvertently made public by an automation script, allowing remediation before any scraper bots could index the data.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /section-data -->
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════ -->
+  <!--  CATEGORY 4: APP & NETWORK SEC     -->
+  <!-- ═══════════════════════════════════ -->
+  <div id="section-net">
+    <div class="category-header">
+      <div class="category-badge badge-net">🌐 Category 04</div>
+      <h2>Application & Network Security</h2>
+    </div>
+
+    <div class="services-grid">
+
+      <!-- Inspector -->
+      <div class="service-card" id="inspector">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="card-icon" style="background:#3b82f618;border:1px solid #3b82f633;">🔬</div>
+          <div class="card-title-area">
+            <div class="card-name">Amazon Inspector</div>
+            <div class="card-tagline">Automated vulnerability management for EC2, ECR & Lambda</div>
+            <a class="card-ref-link" href="https://aws.amazon.com/inspector/" target="_blank" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h4V1H1v10h10V7h-1v4H2V2zm5-1v1h2.293L4.146 7.146l.708.708L10 2.707V5h1V1H7z" fill="currentColor"/></svg>aws.amazon.com/inspector</a>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body open">
+          <div class="section-label">Overview</div>
+          <p class="card-desc">
+            Amazon Inspector is an automated vulnerability management service that continuously scans your AWS workloads — EC2 instances, Amazon ECR container images, and Lambda functions — for software vulnerabilities and unintended network exposure. Inspector v2 integrates with Amazon ECR to scan container images both when pushed and continuously as new CVEs are published, ensuring your container supply chain is free from known vulnerabilities. It produces a prioritized <strong>risk score</strong> (combining CVSS scores with environmental context like network reachability and exploit availability) so security teams focus on the most impactful vulnerabilities first.
+          </p>
+          <div class="section-label">Key Features</div>
+          <div class="features-grid">
+            <div class="feature-pill"><span>🖥</span> EC2 OS Vulnerabilities</div>
+            <div class="feature-pill"><span>🐳</span> Container Image Scanning</div>
+            <div class="feature-pill"><span>⚡</span> Lambda Code Scanning</div>
+            <div class="feature-pill"><span>📊</span> Risk Scoring</div>
+            <div class="feature-pill"><span>🔄</span> Continuous Scanning</div>
+            <div class="feature-pill"><span>📦</span> SBOM Export</div>
+            <div class="feature-pill"><span>🔗</span> Security Hub Export</div>
+            <div class="feature-pill"><span>🏢</span> Organization-wide</div>
+          </div>
+          <div class="how-it-works">
+            <div class="section-label">How It Works</div>
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div>Inspector <strong>automatically activates</strong> on EC2 instances (via SSM Agent), ECR repositories, and Lambda functions — no manual scanning needed.</div></div>
+              <div class="step"><div class="step-num">2</div><div>Installed packages and software are compared against the <strong>NVD, CVE databases, and AWS Security advisories</strong> continuously.</div></div>
+              <div class="step"><div class="step-num">3</div><div>A contextual <strong>Inspector risk score</strong> is assigned based on exploitability, CVSS, and whether a vulnerable port is open to the internet.</div></div>
+              <div class="step"><div class="step-num">4</div><div>Findings flow to <strong>Security Hub and EventBridge</strong> for prioritized remediation tickets in Jira or ServiceNow.</div></div>
+            </div>
+          </div>
+          <div class="rw-box rw-net">
+            <div class="rw-header"><span style="font-size:1.2rem">🌍</span><span class="rw-tag" style="color:var(--network)">Real-World Scenario</span></div>
+            <div class="rw-company">Robinhood — Preventing Log4Shell Exploitation in EKS Containers</div>
+            <span class="rw-attack-badge" style="background:#3b82f618;color:var(--network);border:1px solid #3b82f633">⚔ Attack: Log4Shell (CVE-2021-44228) RCE</span>
+            <p class="rw-text">When Log4Shell (CVE-2021-44228) was disclosed in December 2021, Robinhood's security team used Amazon Inspector v2 to scan all ECR container images in their financial trading platform within hours of the CVE's publication. Inspector identified 34 container images containing vulnerable Log4j versions, prioritizing those with internet-facing network paths. Teams patched critical containers within 6 hours — well before active exploitation attempts were detected in their WAF logs, preventing potential remote code execution in their trading infrastructure.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- WAF -->
+      <div class="service-card" id="waf">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="card-icon" style="background:#3b82f618;border:1px solid #3b82f633;">🧱</div>
+          <div class="card-title-area">
+            <div class="card-name">AWS WAF</div>
+            <div class="card-tagline">Web Application Firewall — layer 7 traffic filtering</div>
+            <a class="card-ref-link" href="https://aws.amazon.com/waf/" target="_blank" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h4V1H1v10h10V7h-1v4H2V2zm5-1v1h2.293L4.146 7.146l.708.708L10 2.707V5h1V1H7z" fill="currentColor"/></svg>aws.amazon.com/waf</a>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body open">
+          <div class="section-label">Overview</div>
+          <p class="card-desc">
+            AWS WAF (Web Application Firewall) is a managed web application firewall that protects your web applications and APIs from common web exploits and bots that may affect availability, compromise security, or consume excessive resources. WAF operates at <strong>Layer 7 (Application Layer)</strong> and can be deployed in front of Amazon CloudFront, Application Load Balancers (ALB), Amazon API Gateway, and AWS AppSync. You define <strong>Web ACLs</strong> containing rules that inspect HTTP/HTTPS request components — headers, URI, query strings, cookies, and body — and either allow, block, or count requests that match. AWS Managed Rule Groups provide pre-built protections against OWASP Top 10, known bot signatures, and IP reputation lists.
+          </p>
+          <div class="section-label">Key Features</div>
+          <div class="features-grid">
+            <div class="feature-pill"><span>📋</span> Web ACLs & Rule Groups</div>
+            <div class="feature-pill"><span>🚫</span> OWASP Top 10 Protection</div>
+            <div class="feature-pill"><span>🤖</span> Bot Control</div>
+            <div class="feature-pill"><span>🔢</span> Rate Limiting</div>
+            <div class="feature-pill"><span>🌍</span> Geo Blocking</div>
+            <div class="feature-pill"><span>🧪</span> Regex Pattern Sets</div>
+            <div class="feature-pill"><span>📊</span> Real-time Metrics</div>
+            <div class="feature-pill"><span>🔗</span> CloudFront / ALB / APIGW</div>
+          </div>
+          <div class="how-it-works">
+            <div class="section-label">How It Works</div>
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div>A Web ACL is created and <strong>associated with a CloudFront distribution, ALB, or API Gateway</strong>.</div></div>
+              <div class="step"><div class="step-num">2</div><div>Rules are evaluated in <strong>priority order</strong> — each rule inspects request components and takes an action (Allow/Block/Count/CAPTCHA).</div></div>
+              <div class="step"><div class="step-num">3</div><div><strong>AWS Managed Rule Groups</strong> (e.g., AWSManagedRulesCommonRuleSet) provide turnkey protection with no rule writing needed.</div></div>
+              <div class="step"><div class="step-num">4</div><div>WAF logs are streamed to <strong>Kinesis Firehose → S3 → Athena</strong> for detailed traffic analysis and tuning.</div></div>
+            </div>
+          </div>
+          <div class="rw-box rw-net">
+            <div class="rw-header"><span style="font-size:1.2rem">🌍</span><span class="rw-tag" style="color:var(--network)">Real-World Scenario</span></div>
+            <div class="rw-company">Ticketmaster — Blocking Scalper Bots & Credential Stuffing</div>
+            <span class="rw-attack-badge" style="background:#3b82f618;color:var(--network);border:1px solid #3b82f633">⚔ Attack: Bot Abuse / Credential Stuffing / Account Takeover</span>
+            <p class="rw-text">Ticketmaster faces massive automated bot attacks during high-demand ticket releases (Taylor Swift, Beyoncé concerts), where millions of bots attempt to purchase tickets simultaneously and credential-stuff customer accounts. By deploying AWS WAF with the Bot Control managed rule group on their CloudFront distribution, Ticketmaster can distinguish between legitimate browsers and automated bots using device fingerprinting and behavioral analysis, blocking bot traffic while allowing real users through — dramatically reducing fraudulent ticket purchases and protecting customer accounts.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shield -->
+      <div class="service-card" id="shield">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="card-icon" style="background:#3b82f618;border:1px solid #3b82f633;">🛡</div>
+          <div class="card-title-area">
+            <div class="card-name">AWS Shield</div>
+            <div class="card-tagline">Managed DDoS protection for AWS resources</div>
+            <a class="card-ref-link" href="https://aws.amazon.com/shield/" target="_blank" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h4V1H1v10h10V7h-1v4H2V2zm5-1v1h2.293L4.146 7.146l.708.708L10 2.707V5h1V1H7z" fill="currentColor"/></svg>aws.amazon.com/shield</a>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body open">
+          <div class="section-label">Overview</div>
+          <p class="card-desc">
+            AWS Shield is a managed Distributed Denial of Service (DDoS) protection service that safeguards applications running on AWS. It comes in two tiers: <strong>Shield Standard</strong> (automatically included at no cost for all AWS customers) provides protection against the most common, frequently occurring network and transport layer (Layer 3/4) DDoS attacks such as SYN floods, UDP reflection attacks, and volumetric attacks. <strong>Shield Advanced</strong> (paid tier) adds sophisticated application-layer (Layer 7) DDoS detection, real-time attack visibility, 24/7 access to the AWS DDoS Response Team (DRT), cost protection against scaling charges during attacks, and automatic application layer protection via WAF rule creation.
+          </p>
+          <div class="section-label">Key Features</div>
+          <div class="features-grid">
+            <div class="feature-pill"><span>🆓</span> Shield Standard (Always on)</div>
+            <div class="feature-pill"><span>⚡</span> L3/L4 DDoS Protection</div>
+            <div class="feature-pill"><span>🌐</span> L7 Attack Detection (Adv)</div>
+            <div class="feature-pill"><span>👨‍💻</span> DDoS Response Team (DRT)</div>
+            <div class="feature-pill"><span>💰</span> Cost Protection (Adv)</div>
+            <div class="feature-pill"><span>📊</span> Real-time Metrics</div>
+            <div class="feature-pill"><span>🔗</span> WAF Auto-Mitigation</div>
+            <div class="feature-pill"><span>📋</span> Health-based Detection</div>
+          </div>
+          <div class="how-it-works">
+            <div class="section-label">How It Works</div>
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div><strong>Shield Standard</strong> activates automatically — AWS's global scrubbing centers detect and mitigate volumetric DDoS traffic before it reaches your resources.</div></div>
+              <div class="step"><div class="step-num">2</div><div><strong>Shield Advanced</strong> continuously monitors CloudFront, Route 53, ELB, and EC2 for unusual traffic spikes using ML baselines.</div></div>
+              <div class="step"><div class="step-num">3</div><div>During an attack, the <strong>DDoS Response Team (DRT)</strong> can craft custom WAF rules and mitigation in real time, 24/7.</div></div>
+              <div class="step"><div class="step-num">4</div><div><strong>Cost protection</strong> prevents billing spikes from EC2 auto-scaling triggered by DDoS-inflated traffic.</div></div>
+            </div>
+          </div>
+          <div class="rw-box rw-net">
+            <div class="rw-header"><span style="font-size:1.2rem">🌍</span><span class="rw-tag" style="color:var(--network)">Real-World Scenario</span></div>
+            <div class="rw-company">EA Sports — Surviving 2.5 Tbps DDoS Attacks During Game Launch</div>
+            <span class="rw-attack-badge" style="background:#3b82f618;color:var(--network);border:1px solid #3b82f633">⚔ Attack: Volumetric DDoS / Amplification Attack</span>
+            <p class="rw-text">Electronic Arts (EA) uses AWS Shield Advanced to protect its online gaming infrastructure (Battlefield, FIFA, Apex Legends) against coordinated DDoS attacks that routinely target gaming platforms during major title launches. During the FIFA 22 launch, threat actors launched a multi-vector DDoS campaign (UDP amplification + SYN flood) exceeding 2.5 Tbps. AWS Shield's global scrubbing infrastructure absorbed and mitigated the attack entirely at the network edge, resulting in zero player-facing downtime while the DRT monitored the attack dashboard in real time.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Groups -->
+      <div class="service-card" id="sg">
+        <div class="card-header" onclick="toggle(this)">
+          <div class="card-icon" style="background:#3b82f618;border:1px solid #3b82f633;">🚧</div>
+          <div class="card-title-area">
+            <div class="card-name">Security Groups</div>
+            <div class="card-tagline">Stateful virtual firewall for EC2 instances & resources</div>
+            <a class="card-ref-link" href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html" target="_blank" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2h4V1H1v10h10V7h-1v4H2V2zm5-1v1h2.293L4.146 7.146l.708.708L10 2.707V5h1V1H7z" fill="currentColor"/></svg>docs.aws.amazon.com/vpc/…/security-groups</a>
+          </div>
+          <div class="card-toggle">▾</div>
+        </div>
+        <div class="card-body open">
+          <div class="section-label">Overview</div>
+          <p class="card-desc">
+            Security Groups are the foundational network security control in AWS VPC — they act as a <strong>stateful virtual firewall</strong> at the instance/resource level (Layer 3/4), controlling inbound and outbound traffic. Every EC2 instance, RDS database, Lambda function in a VPC, EKS node, and load balancer is associated with one or more security groups. Security groups are <strong>allow-only</strong> (no explicit deny rules) — any traffic not explicitly permitted is automatically denied. Being stateful means return traffic for allowed connections is automatically permitted without needing a matching outbound rule. Security groups work alongside NACLs (Network Access Control Lists), which provide stateless, subnet-level filtering as a defense-in-depth layer.
+          </p>
+          <div class="section-label">Key Features</div>
+          <div class="features-grid">
+            <div class="feature-pill"><span>✅</span> Allow-Only Rules</div>
+            <div class="feature-pill"><span>🔄</span> Stateful Connections</div>
+            <div class="feature-pill"><span>🔗</span> SG-to-SG References</div>
+            <div class="feature-pill"><span>📡</span> Inbound & Outbound</div>
+            <div class="feature-pill"><span>🌐</span> CIDR / IPv6 Support</div>
+            <div class="feature-pill"><span>🏷</span> Named & Tagged</div>
+            <div class="feature-pill"><span>📋</span> Rule Descriptions</div>
+            <div class="feature-pill"><span>⚡</span> Instant Propagation</div>
+          </div>
+          <div class="how-it-works">
+            <div class="section-label">How It Works</div>
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div>Create a Security Group within a VPC, defining <strong>inbound rules</strong> (what traffic is allowed in) by protocol, port, and source (CIDR or another SG).</div></div>
+              <div class="step"><div class="step-num">2</div><div>Define <strong>outbound rules</strong> controlling what traffic leaves. By default, all outbound traffic is allowed.</div></div>
+              <div class="step"><div class="step-num">3</div><div>Associate the SG with your EC2 instance, RDS, or ALB. Rules take <strong>effect immediately</strong> and are evaluated at the hypervisor level.</div></div>
+              <div class="step"><div class="step-num">4</div><div>Use <strong>SG-to-SG references</strong> for micro-segmentation — e.g., only allow your web tier SG to talk to your database tier SG on port 5432.</div></div>
+            </div>
+          </div>
+          <div class="tip-box"><span class="tip-icon">💡</span> <span>Defense-in-Depth: Combine Security Groups (instance-level, stateful) with Network ACLs (subnet-level, stateless) for layered network security. Also use AWS Network Firewall for advanced L7 VPC inspection.</span></div>
+          <div class="rw-box rw-net">
+            <div class="rw-header"><span style="font-size:1.2rem">🌍</span><span class="rw-tag" style="color:var(--network)">Real-World Scenario</span></div>
+            <div class="rw-company">Stripe — Micro-segmentation Preventing Lateral Movement</div>
+            <span class="rw-attack-badge" style="background:#3b82f618;color:var(--network);border:1px solid #3b82f633">⚔ Attack: Lateral Movement / East-West Network Attack</span>
+            <p class="rw-text">Stripe's PCI DSS-compliant payment processing infrastructure on AWS uses granular Security Group rules to enforce strict micro-segmentation between service tiers. Each microservice has its own dedicated Security Group that only permits traffic from the specific upstream services that need to communicate with it — no broad "all internal traffic" rules. When a pen test revealed a compromised Lambda function, the Security Group rules prevented any lateral movement to adjacent payment processing services, completely containing the blast radius to a single isolated microservice.</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /services-grid -->
+  </div><!-- /section-net -->
+
+  <!-- FOOTER -->
+  <footer class="doc-footer">
+    <div class="footer-left">
+      <div class="footer-title">AWS Security Tools — Documentation</div>
+      <div class="footer-sub">16 services · 4 categories · Prepared by Siddharth</div>
+    </div>
+    <div class="footer-right">v1.0 · AWS 2024 · All trademarks belong to respective owner</div>
+  </footer>
+
+</main>
+
+<script>
+  // Toggle card bodies
+  function toggle(header) {
+    const body = header.nextElementSibling;
+    const arrow = header.querySelector('.card-toggle');
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    arrow.classList.toggle('open', !isOpen);
+  }
+
+  // Scroll progress bar
+  const bar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', () => {
+    const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+    bar.style.transform = `scaleX(${Math.min(pct, 1)})`;
+  });
+
+  // Active nav link on scroll
+  const sections = document.querySelectorAll('[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  // Sidebar search
+  document.getElementById('sidebarSearch').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    navLinks.forEach(link => {
+      const match = link.textContent.toLowerCase().includes(q);
+      link.style.display = match ? '' : 'none';
+    });
+  });
+
+  // Close all cards except first by default
+  document.querySelectorAll('.card-body').forEach((body, i) => {
+    if (i !== 0) {
+      body.classList.remove('open');
+      const arrow = body.previousElementSibling.querySelector('.card-toggle');
+      if (arrow) arrow.classList.remove('open');
+    }
+  });
+</script>
+</body>
+</html>
